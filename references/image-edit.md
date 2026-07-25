@@ -72,7 +72,7 @@ Caveat: independently edited frames have slight frame-to-frame jitter (eye shape
 
 ## Post-processing pipeline
 
-1. **Background removal** — use `python3 scripts/ensure_transparent.py input.png output.png`. It handles solid black, white, gray, or tinted backgrounds by sampling the four corners and only clearing matching edge-connected pixels. Use `--edge-mode pixel` for pixel art; use the default soft mode for hair, fur, feathers, fringe, glass, smoke, or antialiased art. Do not use the older near-white-only flood fill for transparency-critical output.
+1. **Background removal** — use `"$BETTER_IMAGEGEN_PYTHON" scripts/ensure_transparent.py input.png output.png`. It handles solid black, white, gray, or tinted backgrounds by sampling the four corners and only clearing matching edge-connected pixels. Use `--edge-mode pixel` for pixel art; use the default soft mode for hair, fur, feathers, fringe, glass, smoke, or antialiased art. Do not use the older near-white-only flood fill for transparency-critical output.
 
 ```python
 from PIL import Image

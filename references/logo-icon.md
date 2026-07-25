@@ -70,7 +70,7 @@ open "$FINAL_PATH"
 If corners are black/white/gray/tinted or a tile is baked in, remove only edge-connected background:
 
 ```bash
-python3 scripts/ensure_transparent.py "$FINAL_PATH" /tmp/logo-transparent.png
+"$BETTER_IMAGEGEN_PYTHON" scripts/ensure_transparent.py "$FINAL_PATH" /tmp/logo-transparent.png
 mv /tmp/logo-transparent.png "$FINAL_PATH"
 sips -g hasAlpha "$FINAL_PATH"
 ```

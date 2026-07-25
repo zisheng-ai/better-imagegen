@@ -71,7 +71,7 @@
 做一张动态壁纸，深夜星空下的山脉
 ```
 
-**依赖：** `pip3 install pillow-heif`（内置 libheif，无需 Homebrew）
+**依赖：** `"$BETTER_IMAGEGEN_PYTHON" -m pip install pillow-heif`（安装到项目 `.venv`，内置 libheif，无需 Homebrew）
 
 **输出路径：** `~/Pictures/better-imagegen/dynamic-wallpaper/wallpaper-apr.heic`
 
@@ -129,12 +129,13 @@ git clone https://github.com/zisheng-ai/apiyi-image-gen /path/to/your-agent/skil
 
 **4. 安装核心本地依赖**
 ```bash
-pip3 install -r requirements.txt
+eval "$(./scripts/ensure_venv.sh)"
+# 依赖会安装到当前项目的 .venv，不会修改系统 Python
 ```
 
 **5. 动态壁纸专用依赖**
 ```bash
-pip3 install pillow-heif
+"$BETTER_IMAGEGEN_PYTHON" -m pip install pillow-heif
 ```
 
 ---

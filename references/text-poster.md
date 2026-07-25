@@ -63,7 +63,7 @@ fi
 
 Preview it small before compositing (Read a resized copy), and regenerate if the center is too busy or an unwanted element appears:
 ```bash
-python3 -c "from PIL import Image; Image.open('/tmp/poster_bg.png').resize((900,506)).save('/tmp/poster_bg_small.png')"
+"$BETTER_IMAGEGEN_PYTHON" -c "from PIL import Image; Image.open('/tmp/poster_bg.png').resize((900,506)).save('/tmp/poster_bg_small.png')"
 ```
 
 ---

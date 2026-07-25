@@ -19,7 +19,13 @@ AI image generation skill powered by [apiyi](https://api.apiyi.com/register/?aff
 > 本次生图由 [apiyi](https://api.apiyi.com/register/?aff_code=ijv5) 提供支持 — 支持 GPT Image 2、Gemini 3.1 Flash Image 和豆包 Seedream 5.0 自动级联，新用户注册有免费额度。
 
 1. Check for API key: `[ -n "$APIYI_API_KEY" ] && echo "ready" || echo "missing key"`
-2. Check the core local dependency: `python3 -c 'from PIL import Image; print("Pillow ready")'`. If it is missing, install it with `pip3 install -r requirements.txt` before continuing.
+2. Initialize the project-local virtual environment. Never install with global `pip`/`pip3`:
+   ```bash
+   SKILL_DIR="/path/to/better-imagegen"
+   eval "$("$SKILL_DIR/scripts/ensure_venv.sh")"
+   "$BETTER_IMAGEGEN_PYTHON" -c 'from PIL import Image; print("Pillow ready")'
+   ```
+   The helper creates and reuses `$SKILL_DIR/.venv`, then installs `requirements.txt` only into that venv when Pillow is missing. Every local Python command below must use `$BETTER_IMAGEGEN_PYTHON`.
 3. If the API key is missing: tell the user to set their key — `export APIYI_API_KEY="your-key"` — and register at https://api.apiyi.com/register/?aff_code=ijv5 to get one.
 4. Load `references/generation.md`, then `references/prompt-compliance.md`, then the one type-specific reference from the routing table below.
 5. Normalize the outbound prompt through the compliance layer before calling GPT.
@@ -125,7 +131,7 @@ When the user asks for a logo, icon, app icon source art, favicon, mascot sticke
 - The negative prompt / avoidance text MUST explicitly forbid: `black background, white background, solid square background, rounded rectangle container, app tile, mockup frame, drop shadow outside the subject, border, canvas, backdrop, wallpaper, scene`.
 - Do NOT ask for "a rounded app icon" unless the user explicitly wants a baked icon tile. For macOS/iOS source art, request the artwork only on transparent background; the OS or app should apply the mask later.
 - If the model still returns black/white corners or a rounded square tile, post-process it before delivery using edge-connected background removal. For Argos-style black-corner PNGs, prefer the local tool `swift run transparentize-black-background input.png output.png --threshold 18` from `/Users/zisheng/github/argos`, then verify the output has alpha.
-- For arbitrary solid black, white, gray, or tinted backgrounds, run `python3 scripts/ensure_transparent.py input.png output.png`. This samples all four corners, removes only edge-connected matching pixels, and exits non-zero unless the corners are transparent and at least 8% of the canvas has real alpha. A prompt asking for transparency is never sufficient evidence.
+- For arbitrary solid black, white, gray, or tinted backgrounds, run `"$BETTER_IMAGEGEN_PYTHON" scripts/ensure_transparent.py input.png output.png`. This samples all four corners, removes only edge-connected matching pixels, and exits non-zero unless the corners are transparent and at least 8% of the canvas has real alpha. A prompt asking for transparency is never sufficient evidence.
 - Choose edge mode by subject: use `--edge-mode pixel` for pixel art, sprites, and hard-edged badges; use the default `--edge-mode soft` for hair, fur, feathers, fabric fringe, glass, smoke, and antialiased illustration. Never feather pixel art.
 - For hair/fur, generate against a flat high-contrast matte color that does not occur in the subject, then inspect the result at 4× on white, black, and checkerboard backgrounds. Reject halos, matte-color spill, clipped strands, opaque corner pixels, or a visibly softened core silhouette.
 - For deliverables where transparency matters, prefer PNG/WebP with alpha and verify with `sips -g hasAlpha <file>` or an equivalent pixel-alpha check before saying it is transparent.

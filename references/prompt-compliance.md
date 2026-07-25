@@ -73,7 +73,7 @@ Use this helper when composing prompts inside shell workflows. It performs a con
 compliance_normalize_prompt() {
   local input
   input="$(cat)"
-  PROMPT_INPUT="$input" python3 - "$@" <<'PY'
+  PROMPT_INPUT="$input" "$BETTER_IMAGEGEN_PYTHON" - "$@" <<'PY'
 import os, re
 text = os.environ.get("PROMPT_INPUT", "")
 

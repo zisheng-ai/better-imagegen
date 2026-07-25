@@ -11,8 +11,8 @@
 ## Setup Check
 
 ```bash
-python3 -c "import pillow_heif; print('OK', pillow_heif.__version__)" || \
-  pip3 install pillow-heif -q
+"$BETTER_IMAGEGEN_PYTHON" -c "import pillow_heif; print('OK', pillow_heif.__version__)" || \
+  "$BETTER_IMAGEGEN_PYTHON" -m pip install pillow-heif -q
 ```
 
 ---
@@ -93,7 +93,7 @@ rm -f /tmp/dw_log_*.log
 
 **Special case — user provides an existing image as one frame:**
 ```bash
-python3 -c "from PIL import Image; Image.open('/path/to/existing.webp').convert('RGB').save('/tmp/dw_light.png')"
+"$BETTER_IMAGEGEN_PYTHON" -c "from PIL import Image; Image.open('/path/to/existing.webp').convert('RGB').save('/tmp/dw_light.png')"
 # then only generate the missing frame
 ```
 

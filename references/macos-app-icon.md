@@ -171,8 +171,8 @@ actually view it. Check: artwork centered, corners cleanly transparent (not shar
 -framed), no important pixels clipped by the squircle.
 
 ```bash
-SRC="/path/to/art.webp" MASTER=/tmp/icon_master.png python3 gen_macos_icon_master.py
-python3 -c "from PIL import Image; Image.open('/tmp/icon_master.png').resize((512,512)).save('/tmp/icon_preview.png')"
+SRC="/path/to/art.webp" MASTER=/tmp/icon_master.png "$BETTER_IMAGEGEN_PYTHON" gen_macos_icon_master.py
+"$BETTER_IMAGEGEN_PYTHON" -c "from PIL import Image; Image.open('/tmp/icon_master.png').resize((512,512)).save('/tmp/icon_preview.png')"
 # then view /tmp/icon_preview.png
 ```
 
@@ -187,7 +187,7 @@ NAME="${ICON_NAME:-AppIcon}"     # base name for the .icns
 OUT_DIR="${OUT_DIR:-$HOME/Pictures/better-imagegen}"
 mkdir -p "$OUT_DIR"
 rm -rf "$ICONSET" && mkdir -p "$ICONSET"
-gen() { python3 -c "from PIL import Image; Image.open('$MASTER').resize(($1,$1), Image.LANCZOS).save('$ICONSET/$2')"; }
+gen() { "$BETTER_IMAGEGEN_PYTHON" -c "from PIL import Image; Image.open('$MASTER').resize(($1,$1), Image.LANCZOS).save('$ICONSET/$2')"; }
 gen 16   icon_16x16.png
 gen 32   icon_16x16@2x.png
 gen 32   icon_32x32.png

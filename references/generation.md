@@ -17,15 +17,18 @@ if [ -z "$APIYI_API_KEY" ]; then
 fi
 ```
 
-The local processing pipeline also needs Pillow for response inspection, metadata, transparency,
-and sprite validation. Verify it before spending an API call:
+The local processing pipeline uses a project-local virtual environment for response inspection,
+metadata, transparency, and sprite validation. Never run global `pip`/`pip3`; initialize it before
+spending an API call:
 
 ```bash
-python3 -c 'from PIL import Image; print("Pillow ready")' || {
-  echo "⚠ Pillow is required. Run: pip3 install -r requirements.txt"
-  exit 1
-}
+SKILL_DIR="/path/to/better-imagegen"
+eval "$("$SKILL_DIR/scripts/ensure_venv.sh")"
+"$BETTER_IMAGEGEN_PYTHON" -c 'from PIL import Image; print("Pillow ready")'
 ```
+
+All Python snippets in this reference assume the helper has been initialized and must be invoked as
+`"$BETTER_IMAGEGEN_PYTHON"`, never as bare `python3`.
 
 ---
 
@@ -54,7 +57,7 @@ Every successful output must write a metadata JSON file and every task must prin
 ```bash
 image_dimensions() {
   local image_path="$1"
-  python3 -c 'import sys; from PIL import Image
+  "$BETTER_IMAGEGEN_PYTHON" -c 'import sys; from PIL import Image
 try:
     import pillow_heif
     pillow_heif.register_heif_opener()
@@ -74,8 +77,8 @@ write_image_metadata() {
   actual_size="$(image_dimensions "$final_path")"
   bytes="$(file_bytes "$final_path")"
   format="${final_path##*.}"
-  prompt_json=$(printf '%s' "$PROMPT" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')
-  python3 - "$meta_path" "$final_path" "$model" "$requested_size" "$actual_size" "$elapsed_ms" "$response_format" "$format" "$bytes" "$postprocess_note" "$prompt_json" <<'PY'
+  prompt_json=$(printf '%s' "$PROMPT" | "$BETTER_IMAGEGEN_PYTHON" -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')
+  "$BETTER_IMAGEGEN_PYTHON" - "$meta_path" "$final_path" "$model" "$requested_size" "$actual_size" "$elapsed_ms" "$response_format" "$format" "$bytes" "$postprocess_note" "$prompt_json" <<'PY'
 import json, sys, time
 meta_path, final_path, model, requested_size, actual_size, elapsed_ms, response_format, fmt, bytes_, postprocess_note, prompt_json = sys.argv[1:]
 data = {
@@ -101,7 +104,7 @@ PY
 }
 
 print_image_summary() {
-  python3 - "$@" <<'PY'
+  "$BETTER_IMAGEGEN_PYTHON" - "$@" <<'PY'
 import json, sys
 paths = sys.argv[1:]
 rows = []
@@ -139,20 +142,20 @@ Forbidden patterns:
 
 ```bash
 RESPONSE="$(curl ...)"
-RESPONSE="$RESPONSE" python3 ...
-python3 -c '...' "$RESPONSE"
+RESPONSE="$RESPONSE" "$BETTER_IMAGEGEN_PYTHON" ...
+"$BETTER_IMAGEGEN_PYTHON" -c '...' "$RESPONSE"
 ```
 
 These fail with `Argument list too long` after the API has already charged for and returned the image. Use exactly one of these safe shapes:
 
 ```bash
 # Preferred: stream directly into the decoder.
-curl ... | OUTPUT_PATH="$output_path" python3 -c 'import sys; raw=sys.stdin.buffer.read(); ...'
+curl ... | OUTPUT_PATH="$output_path" "$BETTER_IMAGEGEN_PYTHON" -c 'import sys; raw=sys.stdin.buffer.read(); ...'
 
 # When retry/debug inspection is useful: response file, then file-path argv only.
 response_file="$(mktemp -t apiyi-image-response).json"
 curl ... -o "$response_file"
-OUTPUT_PATH="$output_path" python3 decode_response.py "$response_file"
+OUTPUT_PATH="$output_path" "$BETTER_IMAGEGEN_PYTHON" decode_response.py "$response_file"
 rm -f "$response_file"
 ```
 
@@ -183,8 +186,8 @@ On success it also prints machine-readable lines:
 gen_image_apiyi() {
   local model="$1" size="$2" output_path="$3"
   local prompt_json start_ms end_ms cmd_status
-  prompt_json=$(printf '%s' "$PROMPT" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')
-  start_ms=$(python3 - <<'PY'
+  prompt_json=$(printf '%s' "$PROMPT" | "$BETTER_IMAGEGEN_PYTHON" -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')
+  start_ms=$("$BETTER_IMAGEGEN_PYTHON" - <<'PY'
 import time
 print(int(time.time() * 1000))
 PY
@@ -194,7 +197,7 @@ PY
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $APIYI_API_KEY" \
     -d "{\"model\":\"$model\",\"prompt\":$prompt_json,\"size\":\"$size\"}" \
-  | OUTPUT_PATH="$output_path" python3 -c "
+  | OUTPUT_PATH="$output_path" "$BETTER_IMAGEGEN_PYTHON" -c "
 import sys, json, base64, os, urllib.request
 output_path = os.environ['OUTPUT_PATH']
 raw = sys.stdin.read()
@@ -221,7 +224,7 @@ print('SAVED:' + str(os.path.getsize(output_path)))
 print('RESPONSE_FORMAT:' + response_format)
 "
   cmd_status=$?
-  end_ms=$(python3 - <<'PY'
+  end_ms=$("$BETTER_IMAGEGEN_PYTHON" - <<'PY'
 import time
 print(int(time.time() * 1000))
 PY

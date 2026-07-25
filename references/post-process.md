@@ -28,7 +28,7 @@ to_webp() {
   if command -v cwebp &>/dev/null; then
     cwebp -quiet -q "$q" "$src" -o "$dst" || return 1
   else
-    python3 -c "from PIL import Image; im=Image.open('$src'); im.save('$dst','webp',quality=$q,method=6)" || return 1
+    "$BETTER_IMAGEGEN_PYTHON" -c "from PIL import Image; im=Image.open('$src'); im.save('$dst','webp',quality=$q,method=6)" || return 1
   fi
   after=$(stat -f%z "$dst" 2>/dev/null || stat -c%s "$dst")
   if [ "$after" -ge "$before" ]; then
@@ -64,7 +64,7 @@ Doubao stamps an `AI生成` watermark in the bottom ~5–7 % of the image. Crop 
 ```bash
 strip_doubao_watermark() {
   local path="$1" target_w="$2" target_h="$3"
-  python3 - "$path" "$target_w" "$target_h" <<'PY'
+  "$BETTER_IMAGEGEN_PYTHON" - "$path" "$target_w" "$target_h" <<'PY'
 import sys
 from PIL import Image
 path, target_w, target_h = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])

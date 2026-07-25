@@ -73,11 +73,11 @@ mv "$OUTPUT_PATH" "$SHEET_PATH"
 # Hard gate: never split or deliver a sheet whose poses touch cell guard bands
 # or contain substantial detached fragments. Regenerate the source sheet instead.
 : "${SKILL_DIR:?Set SKILL_DIR to the installed better-imagegen directory (the directory containing SKILL.md).}"
-python3 "$SKILL_DIR/scripts/validate_sprite_cells.py" "$SHEET_PATH" \
+"$BETTER_IMAGEGEN_PYTHON" "$SKILL_DIR/scripts/validate_sprite_cells.py" "$SHEET_PATH" \
   --columns 4 --rows 3 --guard-ratio 0.08 \
   --json-out "$OUT_DIR/cell-boundary-validation.json"
 
-python3 - "$SHEET_PATH" "$FRAME_DIR" "$OUT_DIR/preview.gif" <<'PY'
+"$BETTER_IMAGEGEN_PYTHON" - "$SHEET_PATH" "$FRAME_DIR" "$OUT_DIR/preview.gif" <<'PY'
 import os, sys, json, time
 from PIL import Image
 

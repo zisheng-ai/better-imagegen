@@ -72,7 +72,7 @@ Make a dynamic wallpaper of mountains beneath a midnight starry sky
 Make a dynamic wallpaper — underwater coral reef, day and night
 ```
 
-**Requirements:** `pip3 install pillow-heif` (bundles libheif, no Homebrew needed)
+**Requirements:** `"$BETTER_IMAGEGEN_PYTHON" -m pip install pillow-heif` (installed into the project `.venv`; bundles libheif, no Homebrew needed)
 
 **Output:** `~/Pictures/better-imagegen/dynamic-wallpaper/wallpaper-apr.heic`
 
@@ -130,12 +130,13 @@ git clone https://github.com/zisheng-ai/apiyi-image-gen /path/to/your-agent/skil
 
 **4. Install the core local dependency**
 ```bash
-pip3 install -r requirements.txt
+eval "$(./scripts/ensure_venv.sh)"
+# Dependencies are installed into this project's .venv, never global Python.
 ```
 
 **5. (Dynamic wallpaper only)**
 ```bash
-pip3 install pillow-heif
+"$BETTER_IMAGEGEN_PYTHON" -m pip install pillow-heif
 ```
 
 ---
